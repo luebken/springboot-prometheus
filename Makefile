@@ -13,21 +13,28 @@ curl-local-actuator:
 curl-local-prometheus:
 	curl localhost:8080/actuator/prometheus
 
+# Curl the custom SBP metrics
+curl-local-prometheus-sbp:
+	curl localhost:8080/actuator/prometheus |grep sbp
+
 docker-build:
 	./mvnw spring-boot:build-image
 
 docker-run:
 	docker run -p 8080:8080 demo:0.0.1-SNAPSHOT
 
-docker-push:
+docker-push: docker-build
 	docker tag demo:0.0.1-SNAPSHOT luebken/springboot-prometheus
 	docker push luebken/springboot-prometheus
 
 kubectl-apply:
 	kubectl apply -f k8s.yaml
 
-kubectl-delete:
+kubectl-delete-all:
 	kubectl delete -f k8s.yaml
+
+kubectl-delete-pod:
+	kubectl delete pod -l app=springboot-prometheus
 
 curl-k8s:
 	$(eval MYIP=$(shell kubectl get svc springboot-prometheus -o json |jq -r .status.loadBalancer.ingress[].ip))
@@ -38,4 +45,4 @@ tail-logs-k8s:
 
 curl-k8s-prometheus:
 	$(eval MYIP=$(shell kubectl get svc springboot-prometheus -o json |jq -r .status.loadBalancer.ingress[].ip))
-	curl $(MYIP):8080/actuator/prometheus
+	curl -s $(MYIP):8080/actuator/prometheus
