@@ -38,7 +38,9 @@ kubectl-delete-pod:
 
 curl-k8s:
 	$(eval MYIP=$(shell kubectl get svc springboot-prometheus -o json |jq -r .status.loadBalancer.ingress[].ip))
-	curl $(MYIP):8080/hello-world
+	for ((i=1;i<=100;i++)); do \
+		curl $(MYIP):8080/hello-world; \
+    done;
 
 tail-logs-k8s:
 	kubectl logs -l app=springboot-prometheus -f
