@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 
 @Controller
 @Timed
@@ -18,12 +21,16 @@ public class HelloWorldController {
   private final AtomicLong counter = new AtomicLong();
   Logger logger = LoggerFactory.getLogger(HelloWorldController.class);
 
-
   @GetMapping("/hello-world")
   @ResponseBody
-  @Timed(extraTags = { "my-tag", "mdl" })
-  public Greeting sayHello(@RequestParam(name="name", required=false, defaultValue="Stranger") String name) {
+  @Timed(extraTags = { "service", "sbp" })
+  public Greeting sayHello(@RequestParam(name = "name", required = false, defaultValue = "Stranger") String name) {
     logger.info("Hello from HelloWorldController");
+
+    var registry = new SimpleMeterRegistry();
+    Metrics.addRegistry(registry);
+    Counter.builder("sbp.greeting.id").description("The current greeting id").tags("service", "spb").register(registry);
+    Metrics.counter("sbp.greeting.id").increment();
     return new Greeting(counter.incrementAndGet(), String.format(template, name));
   }
 
