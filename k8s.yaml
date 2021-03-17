@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: springboot-prometheus
+  name: springboot-prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: springboot-prometheus
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: springboot-prometheus
+    spec:
+      containers:
+      - image: luebken/springboot-prometheus
+        name: spring-boot-prometheus
+        resources: {}
+        imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: springboot-prometheus
+  name: springboot-prometheus
+spec:
+  ports:
+  - name: 8080-8080
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: springboot-prometheus
+  type: LoadBalancer

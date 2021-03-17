@@ -1,0 +1,1 @@
+Demo app that emits Prometheus / Micrometer metrics. See [Makefile]. 
