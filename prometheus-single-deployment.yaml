@@ -85,8 +85,38 @@ data:
 
         static_configs:
         - targets: ['localhost:9090']
-      - job_name: greetings-app
-        metrics_path: /actuator/prometheus
-        static_configs:
-        - targets:
-          - 35.222.253.133:8080
+      - job_name: 'my endpoints'
+        metrics_path: '/actuator/prometheus'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - greeting
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: greeting
+  name: prometheus-reader
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["endpoints", "services", "pods"]
+  verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+# This role binding allows "jane" to read pods in the "default" namespace.
+# You need to already have a Role named "pod-reader" in that namespace.
+kind: RoleBinding
+metadata:
+  name: prometheus-reader-binding
+  namespace: greeting
+subjects:
+# You can specify more than one "subject"
+- kind: ServiceAccount
+  name: default
+  namespace: greeting
+roleRef:
+  # "roleRef" specifies the binding to a Role / ClusterRole
+  kind: Role #this must be Role or ClusterRole
+  name: prometheus-reader # this must match the name of the Role or ClusterRole you wish to bind to
+  apiGroup: rbac.authorization.k8s.io
