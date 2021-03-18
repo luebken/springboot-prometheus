@@ -1,3 +1,5 @@
 Demo app that emits Prometheus / Micrometer metrics. See [Makefile](Makefile).
 
-Metrics tags: SBP
+Metrics tags: greeeting
+
+See also https://github.com/fstab/jug-oberpfalz-prometheus-java
