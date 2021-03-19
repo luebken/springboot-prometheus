@@ -36,3 +36,10 @@ tail-logs-k8s:
 curl-k8s-prometheus:
 	$(eval MYIP=$(shell kubectl get svc greeting -o json |jq -r .status.loadBalancer.ingress[].ip))
 	curl -s $(MYIP):8080/actuator/prometheus
+
+watch-build:
+	cd watch; docker build . -t luebken/watch
+	docker push luebken/watch
+
+kubctl-watch-run:
+	kubectl run watch-greeting -n greeting --image=luebken/watch
